@@ -2,10 +2,11 @@ import React from 'react';
 import Card from '../components/card';
 import FormGroup from '../components/form-group';
 import withNavigateHook from '../utils/withNavigateHook';
-import LocalStorageService from '../app/service/localStorageService';
 import UsuarioService from '../app/service/usuarioService';
 
 import {mensagemErro} from '../components/toastr';
+
+import { AuthContext } from '../main/providerAuth';
 
 class Login extends React.Component {
     constructor(props) {
@@ -17,15 +18,16 @@ class Login extends React.Component {
         email: '',
         senha: '',
     }
-    entrar = async () => {
+    entrar = () => {
         //try/catch
              this.service.autenticar({
                 email: this.state.email,
                 senha: this.state.senha
             }).then(response => {
-                LocalStorageService.adicionarItem('_usuario_logado', response.data);
+                this.context.initSession(response.data);
                 this.props.navigation("/home");
             }).catch(error => {
+                console.log(error);
                 mensagemErro(error.response.data);
         })
   
@@ -59,8 +61,10 @@ class Login extends React.Component {
                                                 type="password" className="form-control"
                                                 id="inputPassword" placeholder="Password"/>
                                             </FormGroup>
-                                                <button onClick={this.entrar} className="btn btn-success">Entrar</button>
-                                                <button onClick={this.prepareCadastro} className="btn btn-danger">Cadastrar</button>
+                                                <button onClick={this.entrar} className="btn btn-success">
+                                                <i className="pi pi-sign-in"></i> Entrar</button>
+                                                <button onClick={this.prepareCadastro} className="btn btn-danger">
+                                                <i className="pi pi-plus"></i> Cadastrar</button>
                                             </fieldset>
                                         </div>
                                     </div>
@@ -72,5 +76,7 @@ class Login extends React.Component {
             )
     }
 }
+
+Login.contextType = AuthContext;
 
 export default withNavigateHook(Login);
